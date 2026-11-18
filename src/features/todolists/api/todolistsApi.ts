@@ -1,4 +1,4 @@
-import { instance } from "@/common/instance"
+ import { instance } from "@/common/instance"
 import type { ApiResource, BaseResponse } from "@/common/types"
 import type { Todolist, TodolistAttributes } from "@/features/todolists/api/todolistsApi.types"
 
