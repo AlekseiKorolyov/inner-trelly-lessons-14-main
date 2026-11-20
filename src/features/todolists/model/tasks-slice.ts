@@ -2,8 +2,6 @@ import { createTodolistTC, deleteTodolistTC } from "./todolists-slice"
 import { createAppSlice } from "@/common/utils"
 import { tasksApi } from "@/features/todolists/api/tasksApi.ts"
 import { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
-import { TaskStatus } from "@/common/enums"
-import { RootState } from "@/app/store.ts"
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
@@ -72,39 +70,27 @@ export const tasksSlice = createAppSlice({
       },
     ),
     changeTaskStatusTC: create.asyncThunk(
-      async (args: { todolistId: string; taskId: string; status: TaskStatus }, { rejectWithValue, getState }) => {
+      async (task: DomainTask, { rejectWithValue }) => {
         try {
-          const state = getState() as RootState
-          const allTasks = state.tasks
-          const tasksForTodolist = allTasks[args.todolistId]
-          const updatedTask = tasksForTodolist.find((task) => {
-            return task.id === args.taskId
-          })
-
-          if (updatedTask) {
-            const model: UpdateTaskModel = {
-              status: args.status,
-              description: updatedTask.description,
-              title: updatedTask.title,
-              priority: updatedTask.priority,
-              startDate: updatedTask.startDate,
-              deadline: updatedTask.deadline,
-            }
-
-            const task = await tasksApi.updateTask({ todolistId: args.todolistId, taskId: args.taskId, model })
-            return task
-          } else {
-            return rejectWithValue(null)
+          const model: UpdateTaskModel = {
+            status: task.status,
+            title: task.title,
+            priority: task.priority,
+            startDate: task.startDate,
+            deadline: task.deadline,
           }
+          const res = await tasksApi.updateTask({ todolistId: task.todolistId, taskId: task.id, model })
+          return { task: res }
         } catch (e) {
           return rejectWithValue(null)
         }
       },
       {
         fulfilled: (state, action) => {
-          const task = state[action.payload.todolistId].find((task) => task.id === action.payload.id)
+          const newTask = action.payload.task
+          const task = state[newTask.todolistId].find((task) => task.id === newTask.id)
           if (task) {
-            task.status = action.payload.status
+            task.status = newTask.status
           }
         },
       },
