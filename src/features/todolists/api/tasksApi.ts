@@ -27,11 +27,11 @@ export const tasksApi = {
       })
       .then((res) => toDomainTask(res.data.data, todolistId))
   },
-  updateTask(payload: { todolistId: string; taskId: string; model: UpdateTaskModel }) {
-    const { todolistId, taskId, model } = payload
+  updateTask(payload: { todolistId: string; taskId: string; domainModel: UpdateTaskModel }) {
+    const { todolistId, taskId, domainModel } = payload
     return instance
       .patch<BaseResponse<ApiResource<TaskAttributes>>>(`/boards/${todolistId}/tasks/${taskId}`, {
-        data: { type: "tasks", attributes: model },
+        data: { type: "tasks", attributes: domainModel },
       })
       .then((res) => toDomainTask(res.data.data, todolistId))
   },
